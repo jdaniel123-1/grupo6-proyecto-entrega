@@ -1,0 +1,3 @@
+Nombre de archivo de entrada tiene que ser "Perfil"
+Nombre,Edad,Saldo
+Manuel Arias,18,0
