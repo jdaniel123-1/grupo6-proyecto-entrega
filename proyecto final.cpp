@@ -72,6 +72,12 @@ void registrarResultado(Jugador& p, string nombreJuego, int monto) {
     string registro = nombreJuego + (monto >= 0 ? " (Ganado: +" : " (Perdido: ") 
                       + to_string(monto) + ")";
     p.historial.push_back(registro);
+    
+    ofstream archivoHistorial("output/historial_juegos.txt", ios::app);
+    if (archivoHistorial.is_open()) {
+        archivoHistorial << p.nombre << " | " << registro << endl;
+        archivoHistorial.close();
+    }
 }
 
 void menuPrincipal(Jugador& p) {
@@ -79,7 +85,7 @@ void menuPrincipal(Jugador& p) {
     bool continuar = true;
 
     while (continuar) {
-        cout << "\n--- CASINO VIRTUAL INTERACTIVO ---" << endl;
+        cout << "\n--- CASINO ---" << endl;
         cout << "Saldo actual: $" << p.saldo << endl;
         cout << "1. Blackjack" << endl;
         cout << "2. Tragamonedas" << endl;
@@ -185,17 +191,19 @@ void jugarBlackjack(Jugador& p, int apuesta) {
     printHand("Jugador", pHand);
 
     int sP = getScore(pHand), sD = getScore(dHand);
+    
     if (sP > 21) {
         cout << "Te has pasado. Pierdes." << endl;
         p.saldo -= apuesta;
     } else if (sD > 21 || sP > sD) {
         cout << "¡Ganaste!" << endl;
-        p.saldo += apuesta;
+        p.saldo += (apuesta * 2); 
     } else if (sP == sD) {
         cout << "Empate." << endl;
-    } else {
+        p.saldo += apuesta; 
+    }else {
         cout << "El crupier gana." << endl;
-        p.saldo -= apuesta;
+        p.saldo -= apuesta; 
     }
 }
 
@@ -247,10 +255,14 @@ int main() {
     cout << "=== BIENVENIDO AL CASINO VIRTUAL ===" << endl;
 
     if (!cargarPerfil(p)) {
-        cout << "El sistema no puede continuar sin un perfil valido." << endl;
+        cout << "Error: Archivo de perfil no encontrado." << endl;
         return 0;
     }
-
+    if (p.edad < 18) {
+        cout << "Acceso denegado. Eres menor de edad" << endl;
+        cout << "No tienes permiso para jugar en este casino." << endl;
+        return 0; 
+    }
     cout << "Bienvenido, " << p.nombre << ". Saldo inicial: $" << p.saldo << endl;
     menuPrincipal(p);
 
